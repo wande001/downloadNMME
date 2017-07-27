@@ -82,6 +82,7 @@ def downloadFile(model, var, year, month, n):
 
 def remapData(fileName, resampleFile = orgResampleFile):
   resampleFile[10] = "file='%s'\n" %(fileName)
+  resampleFile[11] = "tempFile='%s'\n" %(str(uuid.uuid4()) + '.nc')
   randomFileName = str(uuid.uuid4()) + '.sh'
   out = open(randomFileName, "w")
   out.writelines(resampleFile)
@@ -139,15 +140,13 @@ for model in range(0, len(modelS)):
           nP.append(n)
 
 nTot = len(modelP)
-nTot = 2
-print nTot
-pool = mp.Pool(processes=2)
+pool = mp.Pool(processes=10)
 results = [pool.apply_async(procesData,args=(modelP[num], varP[num], yearP[num], monthP[num], nP[num])) for num in range(nTot)]
 
 output = [p.get() for p in results]
 
 outFile = open("filesDone.txt", "w")
-for i in range(output):
+for i in range(len(output)):
   outFile.writelines(output[i])
 
 outFile.close()
